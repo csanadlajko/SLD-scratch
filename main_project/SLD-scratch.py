@@ -28,6 +28,11 @@ def convert(dataset_path, train = True):
 
 class SLDNeuralNetwork:
     
+    """
+        The neural network was not able to perform well, so I've decided to refactor the code,
+        and re-implement it using batches
+    """
+    
     def __init__(self, input_nodes, hidden_1_nodes, hidden_2_nodes, output_nodes, lr = 0.01):
         self.input_nodes = input_nodes
         self.hidden_1_nodes = hidden_1_nodes
@@ -94,14 +99,13 @@ class SLDNeuralNetwork:
     def train(self, epochs, training_data):
         for epoch in range(epochs):
             loss_per_epoch = 0.00
-            i = 0
+            np.random.shuffle(training_data)
             for image, label in training_data:
-                i += 1
                 predicted = self.forward(image)
                 expected = self.one_hot_encode(label=label)
                 self.backward(predicted=predicted, expected=expected, input_values=image)
                 loss_per_epoch += self.cross_entropy_loss(predicted=predicted, expected=expected)
-            print(f"Loss at epoch {epoch+1}: {loss_per_epoch/ i:.4f}")
+            print(f"Loss at epoch {epoch+1}/{epochs}: {loss_per_epoch/ len(training_data):.4f}")
             
     
     
@@ -109,7 +113,7 @@ input_nodes = 100*100
 hidden_1_nodes = 128
 hidden_2_nodes = 64
 output_nodes = 10
-learning_rate = 0.001
+learning_rate = 0.01
 correct = 0
 epochs = 5
 
@@ -123,7 +127,7 @@ model.train(epochs=epochs, training_data=training_data)
 
 test_imgs, test_labels = convert("SLD-scratch\\Sign-Language-Digits-Dataset", train=False)
 
-test_data = zip(test_imgs, test_labels)
+test_data = list(zip(test_imgs, test_labels))
 
 for image, label in test_data:
     output = model.forward(image)
